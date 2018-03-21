@@ -1,0 +1,89 @@
+<div id="outlines">
+    <div class="form-group">
+        <select @change="getItems" name="item" class="form-control">
+            <option value="">请选择分组</option>
+            <option v-for='(group,index) in groups' :value="group.group">分组{{group.group}}</option>
+        </select>
+    </div>
+    <ul>
+        <li v-for="(outline,index) in outlines" :key="'outline'+index">
+            {{outline.text}}-{{outline.pid}}
+            <button @click='deloutline(outline.id)' class='btn btn-sm btn-danger'>删除</button>
+            <ul>
+                <li v-for="(ochild,index) in outline.children" :key="'ochild'+index">
+                    <input v-model='questions' type="checkbox" :value="ochild"> {{ochild.text}}-{{ochild.pid}}
+                    <button @click='deloutline(ochild.id)' class='btn btn-danger btn-sm'>删除</button>
+                </li>
+            </ul>
+
+        </li>
+    </ul>
+    <div class="card" v-for='(question,index) in questions' :key='"question"+index'>
+        <div class="card-block">
+            <p>{{question.text}}</p>
+            <p>
+                <template v-for="(vo,index) in items">
+                    <input type="radio">{{vo.item}}
+                </template> 
+            </p>
+        </div>
+    </div>
+    <button v-show='questions.length' class="btn btn-primary btn-block">调查问卷</button>
+
+</div>
+
+<script>
+    // questions = [
+    //     {
+    //         id=12,
+    //         text: "html",
+    //         items: [
+    //             { id: 8, item: '优秀' },
+    //             { id: 9, item: '优秀' },
+    //             { id: 10, item: '优秀' },
+    //         ]
+    //     }
+    // ];
+    var vm = new Vue({
+        el: "#outlines",
+        data: {
+            outlines: [],
+            questions: [],
+            groups: [],
+            items: []
+        },
+        created: function () {
+            var th = this;
+            $.get("/outlines", function (res) {
+                th.outlines = res.data;
+            });
+            $.get("/items/groups", function (res) {
+                th.groups = res.data;
+            })
+        },
+        methods: {
+            deloutline: function (id) {//删除选项
+                if (!confirm("确定删除吗！")) {
+                    return;
+                }
+                var th = this;
+                $.get("/outlines/del", { id: id }, function (result) {
+                    if (result.error != 0) {
+                        alert(result.message)
+                        return;
+                    }
+                    $.get("outlines", function (res) {
+                        th.outlines = res.data;
+                    });
+                });
+            },
+            getItems:function(){
+                var th = this;
+                var group=event.target.value;
+                $.get("/items/getItems",{group:group}, function (res) {
+                    th.items = res.data;
+                })
+            },
+        }
+    })
+</script>

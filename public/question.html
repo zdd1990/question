@@ -1,0 +1,58 @@
+<div id="outlines">
+    <ul>
+        <li v-for="(outline,index) in outlines" :key="'outline'+index">
+            {{outline.text}}-{{outline.pid}}
+            <button @click='deloutline(outline.id)' class='btn btn-sm btn-danger'>删除</button>
+            <ul>
+                <li v-for="(ochild,index) in outline.children" :key="'ochild'+index">
+                    {{ochild.text}}-{{ochild.pid}}
+                    <button @click='deloutline(ochild.id)' class='btn btn-danger btn-sm'>删除</button>
+                </li>
+            </ul>
+
+        </li>
+    </ul>
+    <div class="card">
+        <div class="card-block">
+            <p>question</p>
+            <p>
+                <input type="radio">优秀
+                <input type="radio">良好
+                <input type="radio">优秀
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    var vm = new Vue({
+        el: "#outlines",
+        data: {
+            outlines: []
+        },
+        created: function () {
+            var th = this;
+            $.get("/outlines", function (res) {
+                th.outlines = res.data;
+            })
+        },
+        methods: {
+            deloutline: function (id) {//删除选项
+                if (!confirm("确定删除吗！")) {
+                    return;
+                }
+                var th = this;
+                $.get("/outlines/del", { id: id }, function (result) {
+                    if (result.error != 0) {
+                        alert(result.message)
+                        return;
+                    }
+                    $.get("outlines", function (res) {
+                        th.outlines = res.data;
+                    });
+                });
+            }
+        }
+    })
+</script>

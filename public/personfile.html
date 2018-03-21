@@ -1,0 +1,80 @@
+<div class="row">
+	<div class="col-md-5 col-md-offset-2">
+		<form id="personfile" onsubmit="return false">
+			<fieldset>
+				<legend>用户中心</legend>
+				<p>
+					<label for="photo">头像</label>
+					<input type="file" class="form-control" name='photo' id="myphoto">
+					<img width='80px' src="" class="img-circle">
+				</p>
+				<p>
+					<label for="username">用户名</label>
+					<input type="text" class="form-control" name='username' id="username">
+				</p>
+				<p>
+					<label for="phone">手机</label>
+					<input type="text" class="form-control" name='phone' id="phone">
+				</p>
+				<p>
+					<label for="email">邮箱</label>
+					<input type="text" class="form-control" name='email' id="email">
+				</p>
+				<p>
+					<label for="password">密码</label>
+					<input type="password" class="form-control" name="password" id="password">
+				</p>
+				<p>
+					<label for="age">年龄</label>
+					<input type="text" class="form-control" name='age' id="age">
+				</p>
+				<p class="form-control">
+					<label for="sex">性别</label>
+					<input type="radio" name='sex' id="sex" value="1" checked>男
+					<input type="radio" name='sex' id="sex" value="0">女
+				</p>
+				<p>
+					<button click='uploads()'>保存</button>
+				</p>
+			</fieldset>
+		</form>
+	</div>
+</div>
+<script>
+	//personfile
+	if (!Cookies.get('username')) {
+		// location.href = '/login.html';
+	} else {
+		$('#username').html(Cookies.get('username'));
+		$('.login2').hide();
+	}
+	function logout() {
+		Cookies.remove('username');
+		location.reload();
+	}
+	var pf = Cookies.getJSON('userinfo');
+	personfile.username.value = pf.username;
+	personfile.phone.value = pf.phone;
+	personfile.email.value = pf.email;
+	personfile.password.value = pf.password;
+	personfile.sex.value = pf.sex;
+	$('#personfile img').prop('src','./uploads/' + pf.photo);
+
+	function uploads() {
+		var formData = new FormData();
+		formData.append('id', pf.id);
+		formData.append('images', myphoto.files[0]);
+		$.ajax({
+			url: '/uploads',
+			type: 'post',
+			cache: false,
+			processData: false,
+			data: formData,
+			success: function (result) {
+				if (result.error == 0) {
+					$("#personfile img").prop('src', '/uploads/' + result.data);
+				}
+			}
+		});
+	}
+</script>

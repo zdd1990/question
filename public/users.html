@@ -1,0 +1,161 @@
+<div id="main" class="nav container-fluit col-md-10">
+    <button class=" btn btn-success" @click='ad'>添加</button>
+    <table class='table table-bordered table-hover col-md-10'>
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>用户名</th>
+                <th>手机号</th>
+                <th>邮箱</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tr v-for="user in users" :key="'user'+user.id">
+            <td>{{user.id}}</td>
+            <td>{{user.username}}</td>
+            <td>{{user.phone}}</td>
+            <td>{{user.email}}</td>
+            <td>
+                <input class="btn btn-danger" type="button" value="删除" @click="del(user.id)">
+                <input class="btn btn-info" type="button" value="编辑" @click='edit(user.id)'>
+            </td>
+        </tr>
+    </table>
+    <div v-show='addok' class="table">
+        <form action="" @submit.prevent="save">
+            <p>
+                <input type="text" v-model="username" placeholder="用户名">
+            </p>
+            <p>
+                <input type="text" v-model="phone" placeholder="手机">
+            </p>
+            <p>
+                <input type="text" v-model="email" placeholder="邮箱">
+            </p>
+            <p>
+                <input type="submit" value="保存">
+                <input type="button" value="关闭" @click='close'>
+            </p>
+        </form>
+    </div>
+
+    <div v-show='editok'>
+        <form action="" @submit.prevent="editsave">
+            <p>
+                <input type="text" v-model="eusername" placeholder="用户名">
+            </p>
+            <p>
+                <input type="text" v-model="ephone" placeholder="手机">
+            </p>
+            <p>
+                <input type="text" v-model="eemail" placeholder="邮箱">
+            </p>
+            <p>
+                <input type="submit" value="保存">
+                <input type="button" value="关闭" @click='close'>
+            </p>
+        </form>
+    </div>
+
+</div>
+<script>
+    //management
+    var vm = new Vue({
+        el: '#main',
+        data: {
+            addok: false,
+            editok: false,
+            users: [],
+            username: '',
+            phone: "",
+            email: "",
+            eusername: '',
+            ephone: "",
+            eemail: "",
+            eid: ''
+        },
+        created: function () {
+            //获取数据
+            var th = this;
+            $.get('/users/show', function (res) {
+                th.users = res.data;
+            });
+        },
+        methods: {
+            //删除
+            del: function (id) {
+                if (!confirm('确定删除吗')) {
+                    return;
+                }
+                var th = this;
+                $.get('/users/del', { id: id }, function (result) {
+                    //获取数据 
+                    $.get('/users/show', function (res) {
+                        th.users = res.data;
+                    });
+                })
+            },
+            ad: function () {
+                this.addok = true;
+            },
+            //添加
+            save: function () {
+                var th = this;
+                $.post('/users/add', {
+                    username: this.username,
+                    phone: this.phone,
+                    email: this.email
+                }, function (result) {
+                    //获取数据 
+                    $.get('/users/show', function (res) {
+                        th.users = res.data;
+                    });
+
+                });
+                this.addok = false;
+            },
+            close: function () {
+                this.addok = false;
+                this.editok = false;
+            },
+            //编辑
+            edit: function (id) {
+                this.editok = true;
+                var th = this;
+                //查询当前要编辑的数据
+                $.get('/users/getUsers', { id: id }, function (res) {
+                    th.eusername = res.data.username;
+                    th.ephone = res.data.phone;
+                    th.eemail = res.data.email;
+                    th.eid = id;
+                });
+
+            },
+            editsave: function () {
+                var th = this;
+                $.post('/users/editsave', {
+                    username: th.eusername,
+                    phone: th.ephone,
+                    email: th.eemail,
+                    id: th.eid
+                }, function (result) {
+                    //获取数据 
+                    $.get('/users/show', function (res) {
+                        th.users = res.data;
+                    });
+                });
+                this.eusername = '';
+                this.ephone = '';
+                this.eemail = '';
+                this.eid = '';
+                this.editok = false;
+            }
+        }
+    });
+    if (!Cookies.get('username')) {
+        location.href = '/login.html';
+    } else {
+        $('#username').html(Cookies.get('username'));
+        $('.login2').hide();
+    }
+</script>

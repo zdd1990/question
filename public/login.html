@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="./css/bootstrap.min.css">
+</head>
+
+<body>
+	<div class="contianer">
+		<div class="row">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+				<form id="loginFrm" onsubmit="return false">
+					<fieldset>
+							<legend>用户登录</legend>
+							<p class="form-group">
+								<label for="username">用户名</label>
+								<input type="text" class="form-control" name='username' id="username">
+							</p>
+							<p class="form-group">
+								<label for="password">密码</label>
+								<input type="password" class="form-control" name="password" id="password">
+							</p>
+							<div class="form-group">
+								<button onclick="login()" type="button" class="btn btn-info btn-block">登录</button>
+							</div>
+					</fieldset>
+				
+				</form>
+			</div>
+			
+
+		</div>
+	</div>
+
+	<script src="./js/jquery-3.2.1.min.js"></script>
+	<script src='./js/bootstrap.min.js'></script>
+	<script src='./js/js.cookie.js'></script>
+
+	<script>
+		if (Cookies.get('username')) {
+			location.href = '/index.html';
+		}
+		function login() {
+			$.post('/login', {
+				username: loginFrm.username.value,
+				password: loginFrm.password.value
+			}, function (result) {
+				if (result.error == 0) {
+					location.href = '/index.html';
+				} else {
+					alert('登录失败');
+				}
+			})
+		}
+
+	</script>
+</body>
+
+</html>

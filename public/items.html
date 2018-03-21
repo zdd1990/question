@@ -1,0 +1,47 @@
+<div id="items">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>选项名称</th>
+                <th>分组</th>
+                <th>排序</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(item,index) in items" :key="'item'+index">
+                <td>{{item.item}}</td>
+                <td>{{item.group}}</td>
+                <td>{{item.sort}}</td>
+                <td>
+                    <button @click='delItem(item.id)' class='btn btn-danger'>删除</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    var vm=new Vue({
+        el:"#items",
+        data:{
+            items:[]
+        },
+        created:function(){
+            var th=this;
+            $.get("/items",function(res){
+              th.items=res.data;
+            })
+        },
+        methods:{
+            delItem:function(id){//删除选项
+                var th = this;
+                $.get("/items/del",{id:id},function(){
+                    $.get("items",function(result){
+                         th.items = result.data;
+                    });
+                });
+            }
+        }
+    })
+</script>

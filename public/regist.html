@@ -1,0 +1,102 @@
+<style>
+	.error {
+		color: red;
+	}
+</style>
+<div class="row">
+	<div class="col-md-3"></div>
+	<div class="col-md-6">
+		<form id="registerFrm">
+			<fieldset>
+				<legend>用户问卷调查注册</legend>
+				<p class="form-group">
+					<label for="username">用户名</label>
+					<input type="text" class="form-control" name='username' id="username">
+				</p>
+				<p class="form-group">
+					<label for="phone">手机</label>
+					<input type="text" class="form-control" name='phone' id="phone">
+				</p>
+				<p class="form-group">
+					<label for="email">邮箱</label>
+					<input type="text" class="form-control" name='email' id="email">
+				</p>
+				<p class="form-group">
+					<label for="password">密码</label>
+					<input type="password" class="form-control" name="password" id="password">
+				</p>
+				<p class="form-group">
+					<label for="repassword">确认密码</label>
+					<input type="password" class="form-control" name="repassword" id="repassword">
+				</p>
+				<p class="form-group">
+					<button type="submit" class="save btn btn-info btn-block">注册</button>
+				</p>
+			</fieldset>
+		</form>
+	</div>
+</div>
+<script>
+	$("#registerFrm").validate({
+		rules: {
+			username: {
+				required: true,
+				rangelength: [2, 10],
+				remote: '/isSame'
+			},
+			email: {
+				required: true,
+				email: true,
+			},
+			phone: {
+				required: true,
+				number: true,
+				rangelength: function (el) {
+					if (/^(180)|(189)d{8}$/.test(el.value)) {
+						return [11, 11];
+					} else {
+						return false;
+					}
+				},
+
+
+			},
+			password: {
+				required: true,
+				rangelength: [6, 18],
+			},
+			repassword: {
+				equalTo: '[name=password]'
+			},
+		},
+		//提示信息更改
+		messages: {
+			username: {
+				remote: '用户名已经被注册'
+			},
+			phone: {
+				required: '请输入手机号',
+				number: '手机号必须是数字',
+				rangelength: '手机号必须是11位'
+			}
+		},
+		submitHandler: function (form) {
+			var regFrm = document.querySelector('#registerFrm');
+			var data = {
+				username: regFrm.username.value,
+				phone: regFrm.phone.value,
+				email: regFrm.email.value,
+				password: regFrm.password.value,
+				repassword: regFrm.repassword.value
+			}
+			console.log(data)
+			$.post('/users/save',data,function(result){
+				if(result.error==0){
+					location.href='/login.html';
+				}
+			})
+
+		}
+	});
+
+</script>
